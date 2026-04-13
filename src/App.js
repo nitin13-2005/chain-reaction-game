@@ -83,7 +83,7 @@ function App() {
     return counts;
   };
 
-// /gldkjhlskdjhldkjh
+
   // ================= SOCKET =================
   useEffect(() => {
     socket.on("connect", () => {
