@@ -1,15 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { io } from "socket.io-client";
 import "./App.css";
 
+// ⚠️ Replace this with your LIVE backend URL before deployment
 const socket = io("http://192.168.1.15:8787");
 
 function App() {
   const totalRows = 17;
   const totalCols = 8;
-
-  // kjhdkgdlkh kdslkfh
-
   const playerList = ["red", "blue"];
 
   const [roomId, setRoomId] = useState("");
@@ -30,10 +28,8 @@ function App() {
 
   const [grid, setGrid] = useState(createEmptyGrid());
 
-
-
   // ================= GAME LOGIC =================
-  const spreadLogic = (row, col, player, newGrid) => {
+  const spreadLogic = useCallback((row, col, player, newGrid) => {
     if (row < 0 || col < 0 || row >= totalRows || col >= totalCols) return;
 
     let maxValue = 4;
@@ -69,9 +65,9 @@ function App() {
       spreadLogic(row, col - 1, player, newGrid);
       spreadLogic(row, col + 1, player, newGrid);
     }
-  };
+  }, [totalRows, totalCols]);
 
-  const getCounts = (grid) => {
+  const getCounts = useCallback((grid) => {
     const counts = new Array(playerList.length).fill(0);
 
     grid.forEach((row) =>
@@ -81,8 +77,7 @@ function App() {
     );
 
     return counts;
-  };
-
+  }, [playerList.length]);
 
   // ================= SOCKET =================
   useEffect(() => {
@@ -113,7 +108,6 @@ function App() {
 
         spreadLogic(row, col, player, newGrid);
 
-        // ===== GAME STATE =====
         const counts = getCounts(newGrid);
 
         let newMoves = moves + 1;
@@ -163,7 +157,7 @@ function App() {
       socket.off("receive");
       socket.off("invalid");
     };
-  }, [moves,getCounts, spreadLogic, playerList.length]);
+  }, [getCounts, spreadLogic, playerList.length]);
 
   // ================= ROOM =================
   const generateRoomCode = () => {
@@ -181,8 +175,6 @@ function App() {
     socket.emit("createRoom", roomId);
   };
 
-  
-
   // ================= CLICK =================
   const handleClick = (row, col) => {
     if (!joined || winner !== null) return;
@@ -196,8 +188,8 @@ function App() {
     }
 
     socket.emit("send", {
-      row:row,
-      col:col,
+      row,
+      col,
       player: currentPlayer,
     });
   };
