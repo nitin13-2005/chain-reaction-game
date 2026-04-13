@@ -163,7 +163,7 @@ function App() {
       socket.off("receive");
       socket.off("invalid");
     };
-  }, [moves]);
+  }, [moves,getCounts, spreadLogic, playerList.length]);
 
   // ================= ROOM =================
   const generateRoomCode = () => {
