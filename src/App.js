@@ -110,40 +110,45 @@ function App() {
 
         const counts = getCounts(newGrid);
 
-        let newMoves = moves + 1;
-        let newWinner = null;
+        // ✅ FIXED: use functional update
+        setMoves((prevMoves) => {
+          const newMoves = prevMoves + 1;
 
-        if (newMoves >= playerList.length) {
-          let alive = 0;
-          let win = -1;
+          let newWinner = null;
 
-          for (let i = 0; i < counts.length; i++) {
-            if (counts[i] > 0) {
-              alive++;
-              win = i;
+          if (newMoves >= playerList.length) {
+            let alive = 0;
+            let win = -1;
+
+            for (let i = 0; i < counts.length; i++) {
+              if (counts[i] > 0) {
+                alive++;
+                win = i;
+              }
+            }
+
+            if (alive === 1) newWinner = win;
+          }
+
+          let nextPlayer = player;
+
+          if (newMoves < playerList.length) {
+            nextPlayer = (player + 1) % playerList.length;
+          } else {
+            for (let i = 1; i <= playerList.length; i++) {
+              let check = (player + i) % playerList.length;
+              if (counts[check] !== 0) {
+                nextPlayer = check;
+                break;
+              }
             }
           }
 
-          if (alive === 1) newWinner = win;
-        }
+          setCurrentPlayer(nextPlayer);
+          setWinner(newWinner);
 
-        let nextPlayer = player;
-
-        if (newMoves < playerList.length) {
-          nextPlayer = (player + 1) % playerList.length;
-        } else {
-          for (let i = 1; i <= playerList.length; i++) {
-            let check = (player + i) % playerList.length;
-            if (counts[check] !== 0) {
-              nextPlayer = check;
-              break;
-            }
-          }
-        }
-
-        setMoves(newMoves);
-        setCurrentPlayer(nextPlayer);
-        setWinner(newWinner);
+          return newMoves;
+        });
 
         return newGrid;
       });
@@ -157,7 +162,7 @@ function App() {
       socket.off("receive");
       socket.off("invalid");
     };
-  }, [moves, getCounts, spreadLogic, playerList.length]);
+  }, [getCounts, spreadLogic, playerList.length]); // ✅ FIXED
 
   // ================= ROOM =================
   const generateRoomCode = () => {
