@@ -157,7 +157,7 @@ function App() {
       socket.off("receive");
       socket.off("invalid");
     };
-  }, [getCounts, spreadLogic, playerList.length]);
+  }, [moves, getCounts, spreadLogic, playerList.length]);
 
   // ================= ROOM =================
   const generateRoomCode = () => {
